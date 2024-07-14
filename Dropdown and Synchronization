@@ -1,0 +1,96 @@
+<dependencies>
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>4.1.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-chrome-driver</artifactId>
+        <version>4.1.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>1.3.2</version>
+    </dependency>
+</dependencies>
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
+
+public class AutomateForm {
+    public static void main(String[] args) {
+        // Set the path to your ChromeDriver
+        System.setProperty("webdriver.chrome.driver", "path_to_your_chromedriver"); // e.g., "C:/path_to_chromedriver/chromedriver.exe"
+
+        // Create a new instance of the Chrome driver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // 1. Go to the form page
+            driver.get("https://phptravels.com/demo/");
+
+            // Initialize WebDriverWait
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            // 2. Fill in the form details
+            WebElement firstName = wait.until(ExpectedConditions.elementToBeClickable(By.name("first_name")));
+            firstName.sendKeys("John");
+
+            WebElement lastName = driver.findElement(By.name("last_name"));
+            lastName.sendKeys("Doe");
+
+            WebElement businessName = driver.findElement(By.name("business_name"));
+            businessName.sendKeys("John's Business");
+
+            WebElement email = driver.findElement(By.name("email"));
+            email.sendKeys("john.doe@example.com");
+
+            // 3. Add the logic for sum verification
+            WebElement sum1 = driver.findElement(By.id("numb1"));
+            WebElement sum2 = driver.findElement(By.id("numb2"));
+            int num1 = Integer.parseInt(sum1.getText());
+            int num2 = Integer.parseInt(sum2.getText());
+            int sumResult = num1 + num2;
+
+            WebElement sumInput = driver.findElement(By.id("number"));
+            sumInput.sendKeys(String.valueOf(sumResult));
+
+            // 4. Verify that the form is submitted successfully by checking the message displayed
+            WebElement submitButton = driver.findElement(By.id("demo"));
+            submitButton.click();
+
+            WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("success-msg")));
+            if (successMessage.isDisplayed()) {
+                System.out.println("Form submitted successfully.");
+            } else {
+                System.out.println("Form submission failed.");
+            }
+
+            // 5. Take a screenshot of the page after the form submission
+            TakesScreenshot ts = (TakesScreenshot) driver;
+            File srcFile = ts.getScreenshotAs(OutputType.FILE);
+            File destFile = new File("screenshot.png");
+            FileUtils.copyFile(srcFile, destFile);
+            System.out.println("Screenshot taken and saved as screenshot.png");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser instance
+            driver.quit();
+        }
+    }
+}
